@@ -1,0 +1,19 @@
+{
+  "name": "bitcoin-ticker",
+  "version": "1.0.0",
+  "description": "give bitcoin info at users request",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arbliss/Bitcoin-Ticker.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arbliss/Bitcoin-Ticker/issues"
+  },
+  "homepage": "https://github.com/arbliss/Bitcoin-Ticker#readme"
+}
