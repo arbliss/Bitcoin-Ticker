@@ -3,22 +3,25 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const request = require("request");
+require('dotenv').config();
 
 app.use(bodyParser.urlencoded({
   extended: true
 }));
 
+//get route for main page
 app.get("/", function(req, res) {
   res.sendFile(__dirname + "/index.html");
 });
 
+//post route for submitting currency types against the API
 app.post("/", function(req, res) {
-  // console.log(req.body.crypto);
-  var crypto = req.body.crypto;
-  var currency = req.body.currency;
-  var amount = req.body.amount;
 
-  switch (crypto) {
+  let inputCrypto = req.body.crypto;
+  let inputCurrency = req.body.currency;
+  let inputAmount = req.body.amount;
+
+  switch (inputCrypto) {
     case "BTC":
       var cryptoName = "Bitcoin";
       break;
@@ -32,29 +35,55 @@ app.post("/", function(req, res) {
       break;
 
     default:
-      console.log("unexpected value for var crypto");
+      console.log("unexpected value for var inputCrypto");
+  }
+
+  switch (inputCurrency) {
+    case "USD":
+      var currencyName = "US Dollars";
+      break;
+
+    case "GBP":
+      currencyName = "Great British Pounds";
+      break;
+
+    case "EUR":
+      currencyName = "Euros";
+      break;
+
+    default:
+      console.log("unexpected value for var currency");
   }
 
   var options = {
-    url: "https://apiv2.bitcoinaverage.com/convert/global",
+    url: process.env.API_URL + "exchange-rates",
     method: "GET",
     qs: {
-      from: crypto,
-      to: currency,
-      amount: amount
+      key: process.env.API_KEY
     }
   };
 
 request(options, function(error, response, body) {
-  var data = JSON.parse(body);
-  var price = data.price;
+  let data = JSON.parse(body);
+  let currentValue = 0;
+  let currentDate = 0;
+  let typeCurrency = 0;
 
-  console.log(price);
+  data.forEach((item, index, array) => {
 
-  var currentDate = data.time;
+    if  (item.currency == inputCurrency) {
+      typeCurrency = item.rate;
+    }
+
+    if (item.currency == inputCrypto) {
+      currentDate = item.timestamp;
+      currentValue = item.rate;
+    }
+  });
 
   res.write("<p>The current date is " + currentDate + "</p>");
-  res.write("<h1>" + amount + " " + cryptoName + " is currently worth " + price + " " + currency + "</h1>");
+  res.write("<h1>" + inputAmount + " " + cryptoName + " is currently worth $" +
+    ((currentValue*inputAmount)*typeCurrency).toFixed(2) + " " + currencyName + " </h1>");
   res.send();
 });
 });
